@@ -225,7 +225,7 @@ function buildPrompt(){
 
 function callAPI(onOK, onErr){
   var body=JSON.stringify({
-    model:'claude-3-5-haiku-20241022',
+    model:'claude-haiku-4-5',
     max_tokens:2048,
     messages:[{role:'user', content:buildPrompt()}]
   });
@@ -293,7 +293,7 @@ function generate(){
     document.getElementById('ldwrap').style.display='none';
     document.getElementById('sth').textContent='Chyba';
     var sb=document.getElementById('sbody'); sb.style.display='block'; sb.style.color='#FF6B9D';
-    sb.textContent=errMsg;
+    sb.textContent='Chyba: '+errMsg;
     var row=mk('div','navrow'); row.style.marginTop='14px';
     var rb=mk('button','bgen'); rb.textContent='Zkusit znovu'; rb.onclick=reset;
     row.appendChild(rb); sc.appendChild(row);
