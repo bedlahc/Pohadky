@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pohadkovy Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Nunito', sans-serif; background: #FFF9F0; min-height: 100vh; color: #3A2A1A; }
+.wrap { max-width: 680px; margin: 0 auto; padding: 20px 16px 80px; }
+.hdr { text-align: center; padding: 24px 10px 16px; }
+.badge { display: inline-block; background: linear-gradient(135deg,#FF6B9D,#FFB347,#4AABDE); border-radius: 50px; padding: 5px 18px; font-size: 11px; font-weight: 800; color: white; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+.hdr h1 { font-family: 'Fredoka One', cursive; font-size: 46px; line-height: 1.1; background: linear-gradient(135deg,#FF6B9D,#FFB347,#A870E0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 400; margin-bottom: 6px; }
+.hdr p { color: #9A8A7A; font-size: 15px; font-weight: 700; }
+.apibox { background: #F8F0FF; border: 2px solid #C89BF0; border-radius: 18px; padding: 16px 18px; margin-bottom: 18px; }
+.apibox h3 { font-family: 'Fredoka One', cursive; font-size: 15px; color: #7040A0; margin-bottom: 5px; font-weight: 400; }
+.apibox p { font-size: 13px; color: #9070C0; margin-bottom: 10px; line-height: 1.5; }
+.apirow { display: flex; gap: 7px; }
+.apirow input { flex: 1; border: 2px solid #C89BF0; border-radius: 11px; padding: 9px 12px; font-family: monospace; font-size: 12px; color: #3A2A1A; background: white; outline: none; min-width: 0; }
+.apirow input:focus { border-color: #A870E0; }
+.apibtn { background: #A870E0; border: none; border-radius: 11px; padding: 9px 14px; font-family: 'Fredoka One', cursive; font-size: 14px; color: white; cursor: pointer; white-space: nowrap; font-weight: 400; flex-shrink: 0; }
+.apibtn:hover { background: #9050D0; }
+.apibtn.red { background: #FF6B9D; }
+.apibtn.red:hover { background: #EE5080; }
+.apist { font-size: 12px; font-weight: 800; margin-top: 6px; min-height: 16px; }
+.apist.ok { color: #7BC85C; } .apist.err { color: #FF6B9D; }
+.prog { display: flex; gap: 7px; margin: 14px 0 5px; }
+.ps { flex: 1; height: 8px; background: #EEE; border-radius: 10px; overflow: hidden; }
+.ps .f { height: 100%; border-radius: 10px; width: 0; transition: width 0.4s; }
+.ps.done .f { width: 100%; background: #7BC85C; } .ps.cur .f { width: 55%; background: #FF6B9D; }
+.slbl { text-align: center; font-size: 13px; color: #9A8A7A; font-weight: 700; margin-bottom: 14px; min-height: 18px; }
+.slbl b { color: #FF6B9D; }
+.card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 12px; border: 2.5px solid #F0EAE0; box-shadow: 0 6px 0 #EDE0D0; }
+.ctit { font-family: 'Fredoka One', cursive; font-size: 16px; color: #3A2A1A; margin-bottom: 13px; font-weight: 400; }
+.age-row { display: flex; gap: 10px; }
+.ab { flex: 1; padding: 14px 6px; border: 3px solid #EEE; border-radius: 14px; font-family: 'Fredoka One', cursive; font-size: 26px; cursor: pointer; color: #CCC; text-align: center; line-height: 1.2; background: white; transition: all 0.15s; user-select: none; font-weight: 400; }
+.ab small { display: block; font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 700; }
+.ab:hover { border-color: #FFB347; color: #FFB347; }
+.ab.on { background: #FFB347; border-color: #FFB347; color: white; box-shadow: 0 4px 0 #CC8800; transform: translateY(-2px); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ch { padding: 8px 14px; border: 2.5px solid #FBBFD8; border-radius: 50px; font-size: 13px; font-weight: 700; color: #D45E8A; background: #FFF5FB; cursor: pointer; user-select: none; transition: all 0.15s; }
+.ch.on { background: #FF6B9D; border-color: #FF6B9D; color: white; }
+.ch.g { border-color: #86D466; color: #3A8A1E; background: #F0FFF0; } .ch.g.on { background: #7BC85C; border-color: #7BC85C; color: white; }
+.ch.b { border-color: #7BC8F6; color: #1A6FA0; background: #F0F8FF; } .ch.b.on { background: #4AABDE; border-color: #4AABDE; color: white; }
+.ch.o { border-color: #FFB347; color: #A06010; background: #FFF8EE; } .ch.o.on { background: #FFB347; border-color: #FFB347; color: white; }
+.ch.p { border-color: #C89BF0; color: #7040A0; background: #F8F0FF; } .ch.p.on { background: #A870E0; border-color: #A870E0; color: white; }
+.hcs { display: grid; grid-template-columns: repeat(auto-fill, minmax(74px,1fr)); gap: 8px; }
+.hc { border: 2.5px solid #FBBFD8; border-radius: 12px; padding: 10px 5px; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; font-size: 10px; font-weight: 700; color: #D45E8A; text-align: center; background: white; user-select: none; transition: all 0.15s; }
+.hc .em { font-size: 26px; line-height: 1; }
+.hc.on { background: #FF6B9D; border-color: #FF6B9D; color: white; transform: scale(1.05); }
+.hc.gt { border-color: #86D466; color: #3A8A1E; } .hc.gt.on { background: #7BC85C; border-color: #7BC85C; color: white; }
+.hc.bt { border-color: #7BC8F6; color: #1A6FA0; } .hc.bt.on { background: #4AABDE; border-color: #4AABDE; color: white; }
+.hc.pt { border-color: #C89BF0; color: #7040A0; } .hc.pt.on { background: #A870E0; border-color: #A870E0; color: white; }
+.ng { display: flex; flex-wrap: wrap; gap: 9px; }
+.ni { display: flex; align-items: center; gap: 7px; background: #FFF8F0; border-radius: 12px; padding: 9px 12px; border: 2px solid #F0E4D0; flex: 1; min-width: 140px; }
+.ni .nem { font-size: 20px; flex-shrink: 0; } .ni .nid { flex: 1; min-width: 0; }
+.ni label { font-size: 9px; font-weight: 800; color: #9A8A7A; text-transform: uppercase; letter-spacing: 0.5px; display: block; }
+.ni input { border: none; background: transparent; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; color: #3A2A1A; width: 100%; outline: none; }
+.ni input::placeholder { color: #CCC; }
+.navrow { display: flex; gap: 10px; margin-top: 14px; }
+.bbk { background: #F0F0F0; border: none; border-radius: 50px; padding: 12px 20px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; color: #888; cursor: pointer; flex-shrink: 0; }
+.bbk:hover { background: #E5E5E5; }
+.bnt { flex: 1; background: linear-gradient(135deg,#FF6B9D,#FFB347); border: none; border-radius: 50px; padding: 13px; font-family: 'Fredoka One', cursive; font-size: 18px; color: white; cursor: pointer; box-shadow: 0 5px 0 #CC5070; font-weight: 400; transition: all 0.15s; }
+.bnt:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #CC5070; }
+.bnt:disabled { background: #DDD; box-shadow: 0 5px 0 #BBB; cursor: default; transform: none; }
+.bgen { flex: 1; background: linear-gradient(135deg,#7BC85C,#4AABDE); border: none; border-radius: 50px; padding: 14px; font-family: 'Fredoka One', cursive; font-size: 18px; color: white; cursor: pointer; box-shadow: 0 5px 0 #3A8A20; font-weight: 400; transition: all 0.15s; }
+.bgen:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #3A8A20; }
+.story-card { background: #FFFEF5; border-radius: 22px; padding: 24px; border: 2.5px solid #FFD570; box-shadow: 0 7px 0 #F0C050; }
+.story-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 13px; border-bottom: 2px dashed #FFD570; }
+.story-top h2 { font-family: 'Fredoka One', cursive; font-size: 18px; color: #C48000; font-weight: 400; }
+.sum { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.sc { background: #FFF0F5; border: 1.5px solid #FFBBDD; border-radius: 50px; padding: 3px 11px; font-size: 12px; font-weight: 700; color: #C05080; }
+.story-body { font-size: 16px; line-height: 2.1; color: #4A3820; }
+.story-body p { margin-bottom: 15px; } .story-body p:last-child { margin-bottom: 0; }
+.sbtns { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+.bact { flex: 1; min-width: 90px; border: 2.5px solid #FFD570; border-radius: 50px; padding: 10px; background: white; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; color: #B87800; cursor: pointer; text-align: center; transition: all 0.15s; }
+.bact:hover { background: #FFF8E0; }
+.bnew { flex: 1; min-width: 90px; background: linear-gradient(135deg,#FF6B9D,#A870E0); border: none; border-radius: 50px; padding: 11px; font-family: 'Fredoka One', cursive; font-size: 15px; color: white; cursor: pointer; box-shadow: 0 3px 0 #9040A0; font-weight: 400; }
+.ldwrap { text-align: center; padding: 36px 10px; }
+.ldbook { font-size: 50px; display: inline-block; animation: lb 0.8s ease-in-out infinite alternate; }
+@keyframes lb { from { transform: rotate(-5deg) translateY(0); } to { transform: rotate(5deg) translateY(-8px); } }
+.ldots { display: flex; justify-content: center; gap: 8px; margin: 14px 0 8px; }
+.ldot { width: 11px; height: 11px; border-radius: 50%; animation: ld 1.2s infinite; }
+.ldot:nth-child(1) { background: #FF6B9D; } .ldot:nth-child(2) { background: #FFB347; animation-delay: 0.2s; } .ldot:nth-child(3) { background: #4AABDE; animation-delay: 0.4s; }
+@keyframes ld { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-9px); } }
+.ldtxt { font-family: 'Fredoka One', cursive; font-size: 16px; color: #9A8A7A; font-weight: 400; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: #3A2A1A; color: white; border-radius: 50px; padding: 10px 20px; font-size: 14px; font-weight: 700; z-index: 9999; transition: transform 0.3s; pointer-events: none; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="badge">Pro deti 6-9 let</div>
+    <h1>Pohadkovy<br>Generator</h1>
+    <p>Vytvor svoji vlastni pohadku!</p>
+  </div>
+  <div class="apibox">
+    <h3>&#128273; API klic z Anthropic</h3>
+    <p>Ziskej klic na <strong>console.anthropic.com</strong> &rarr; API Keys &rarr; Create Key. Ulozi se jen v prohlizeci.</p>
+    <div class="apirow">
+      <input type="text" id="keyInput" placeholder="sk-ant-api03-..." spellcheck="false" autocomplete="off" />
+      <button class="apibtn" id="keySave">Ulozit</button>
+      <button class="apibtn red" id="keyClear">X</button>
+    </div>
+    <div class="apist" id="keySt"></div>
+  </div>
+  <div class="prog" id="prog"></div>
+  <div class="slbl" id="slbl"></div>
+  <div id="main"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var ST = { step:0, age:null, topic:null, theme:null, chars:[], names:{} };
+var API_KEY = '';
+
+var TOPICS = [
+  {v:'les',       l:'Hluboky les',      e:'&#127795;', c:'g'},
+  {v:'zamek',     l:'Zamek',            e:'&#127984;', c:'' },
+  {v:'more',      l:'More a pirati',    e:'&#127754;', c:'b'},
+  {v:'vesmir',    l:'Vesmir',           e:'&#128640;', c:'p'},
+  {v:'vesnice',   l:'Kouzelna vesnice', e:'&#127969;', c:'o'},
+  {v:'draci',     l:'Draci',            e:'&#129409;', c:'' },
+  {v:'minecraft', l:'Minecraft',        e:'&#129520;', c:'g'},
+  {v:'skola',     l:'Skola',            e:'&#127979;', c:'b'},
+  {v:'ostrov',    l:'Ostrov',           e:'&#127965;', c:'o'},
+  {v:'zavody',    l:'Zavody',           e:'&#127950;', c:'' }
+];
+var THEMES = [
+  {v:'pratelstvi', l:'Pratelstvi', e:'&#129309;', c:'g'},
+  {v:'odvaha',     l:'Odvaha',     e:'&#128170;', c:'o'},
+  {v:'zahada',     l:'Zahada',     e:'&#128269;', c:'p'},
+  {v:'humor',      l:'Humor',      e:'&#128514;', c:'b'},
+  {v:'rodina',     l:'Rodina',     e:'&#128155;', c:'' },
+  {v:'kouzla',     l:'Kouzla',     e:'&#127775;', c:'' },
+  {v:'chytrost',   l:'Chytrost',   e:'&#129504;', c:'p'},
+  {v:'laska',      l:'Laska',      e:'&#128149;', c:'' }
+];
+var CHARS = [
+  {v:'chlapec',   l:'Chlapec 1',  e:'&#128102;', t:'',   df:'Tomas'   },
+  {v:'chlapec2',  l:'Chlapec 2',  e:'&#128102;', t:'',   df:'Jakub'   },
+  {v:'divka',     l:'Divka 1',    e:'&#128103;', t:'',   df:'Eliska'  },
+  {v:'divka2',    l:'Divka 2',    e:'&#128103;', t:'',   df:'Tereza'  },
+  {v:'kouzelnik', l:'Kouzelnik',  e:'&#129497;', t:'',   df:'Marek'   },
+  {v:'vila',      l:'Vila',       e:'&#129498;', t:'pt', df:'Zuzka'   },
+  {v:'liska',     l:'Liska',      e:'&#129418;', t:'gt', df:'Fispan'  },
+  {v:'medved',    l:'Medved',     e:'&#128059;', t:'gt', df:'Brumla'  },
+  {v:'vlk',       l:'Vlk',        e:'&#128058;', t:'gt', df:'Sedivak' },
+  {v:'lev',       l:'Lev',        e:'&#129409;', t:'gt', df:'Rev'     },
+  {v:'zajicek',   l:'Zajicek',    e:'&#128048;', t:'gt', df:'Ousko'   },
+  {v:'kocka',     l:'Kocka',      e:'&#128049;', t:'gt', df:'Mourek'  },
+  {v:'dino',      l:'Dino',       e:'&#129493;', t:'bt', df:'Bronto'  },
+  {v:'vlacek',    l:'Vlacek',     e:'&#128642;', t:'bt', df:'Pufik'   },
+  {v:'auto',      l:'Auto',       e:'&#128663;', t:'bt', df:'Kamil'   },
+  {v:'drak',      l:'Drak',       e:'&#128050;', t:'pt', df:'Supinka' },
+  {v:'princezna', l:'Princezna',  e:'&#128120;', t:'',   df:'Ruzenka' },
+  {v:'princ',     l:'Princ',      e:'&#129332;', t:'',   df:'Radovan' },
+  {v:'maminka',   l:'Maminka',    e:'&#128105;', t:'',   df:'Maminka' },
+  {v:'tatinek',   l:'Tatinek',    e:'&#128104;', t:'',   df:'Tatinek' },
+  {v:'babicka',   l:'Babicka',    e:'&#128096;', t:'',   df:'Babicka' },
+  {v:'deda',      l:'Deda',       e:'&#128095;', t:'',   df:'Deda'    },
+  {v:'jerab',     l:'Jerab',      e:'&#129342;', t:'gt', df:'Jerabek' },
+  {v:'velryba',   l:'Velryba',    e:'&#128011;', t:'gt', df:'Velkynos'},
+  {v:'zralok',    l:'Zralok',     e:'&#129416;', t:'gt', df:'Ostrozub'}
+];
+
+var CE={}, CD={}, CL={}, TL={}, THL={};
+CHARS.forEach(function(c){ CE[c.v]=c.e; CD[c.v]=c.df; CL[c.v]=c.l; });
+TOPICS.forEach(function(t){ TL[t.v]=t.l; });
+THEMES.forEach(function(t){ THL[t.v]=t.l; });
+
+var TALIAS = {chlapec2:'chlapec', divka2:'divka'};
+
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function getName(v){ var n=ST.names[v]; return (n&&n.trim()) ? n.trim() : (CD[v]||cap(v)); }
+function find(arr,v){ for(var i=0;i<arr.length;i++) if(arr[i].v===v) return arr[i]; return null; }
+
+function stripKey(s){
+  var o='';
+  for(var i=0;i<s.length;i++){ var c=s.charCodeAt(i); if(c>=33&&c<=126) o+=s[i]; }
+  return o;
+}
+
+// Init API key box
+(function(){
+  var inp=document.getElementById('keyInput');
+  var st=document.getElementById('keySt');
+  try{ var k=localStorage.getItem('pg_k')||''; if(k){API_KEY=k;inp.value=k;ok(k);} }catch(e){}
+  function ok(k){ st.textContent='OK! '+k.length+' znaku: '+k.substring(0,16)+'...'; st.className='apist ok'; }
+  document.getElementById('keySave').onclick=function(){
+    var k=stripKey(inp.value); inp.value=k;
+    if(!k){ st.textContent='Zadej klic!'; st.className='apist err'; return; }
+    if(k.indexOf('sk-')!==0){ st.textContent='Musi zacinat sk- (mas: '+k.substring(0,10)+')'; st.className='apist err'; return; }
+    API_KEY=k; try{localStorage.setItem('pg_k',k);}catch(e){}
+    ok(k);
+  };
+  document.getElementById('keyClear').onclick=function(){
+    API_KEY=''; inp.value=''; try{localStorage.removeItem('pg_k');}catch(e){}
+    st.textContent='Vymazan'; st.className='apist err';
+  };
+})();
+
+function buildPrompt(){
+  var chars=ST.chars.map(function(v){ return getName(v)+' ('+(TALIAS[v]||v)+')'; }).join(', ');
+  var topMap={les:'v tajemnem lese',zamek:'na zamku',more:'u more na lodi',vesmir:'ve vesmiru',vesnice:'v kouzelne vesnici Duhovice',draci:'v zemi draku',minecraft:'ve svete Minecraftu - krumpace, diamanty, creeper, zombie, nether',skola:'na zakladni skole',ostrov:'na tropickem ostrove',zavody:'na zavodnim okruhu'};
+  var theMap={pratelstvi:'pratelstvi a pomoci',odvaha:'odvaze a prekonani strachu',zahada:'reseni tajemne zahady',humor:'humoru a smesnych situacich',rodina:'rodine a lasce',kouzla:'kouzelnych predmetech',chytrost:'chytrosti - hrdina zvitezi hlavou',laska:'lasce a laskavosti'};
+  return [
+    'Napiste ceskou pohadku pro dite '+ST.age+' let.',
+    'Prostredi: '+(topMap[ST.topic]||ST.topic),
+    'Tema: '+(theMap[ST.theme]||ST.theme),
+    'Postavy: '+chars,
+    '',
+    'Pozadavky:',
+    '- Minimalne 600 slov',
+    '- Zacni rovnou pribehem bez nadpisu',
+    '- Pouzivej jmena postav',
+    '- Odstavce po 80-100 slovech',
+    '- Struktura: uvod, problem, pokus, zvrat, vrchol, stastny konec s poucenim',
+    '- Dialogy a emoce',
+    '- Jazyk pro dite '+ST.age+' let'
+  ].join('\n');
+}
+
+function callAPI(onOK, onErr){
+  var body=JSON.stringify({
+    model:'claude-3-5-haiku-20241022',
+    max_tokens:2048,
+    messages:[{role:'user', content:buildPrompt()}]
+  });
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'content-type':'application/json',
+      'x-api-key':API_KEY,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:body
+  })
+  .then(function(r){ return r.text().then(function(t){ return {s:r.status,t:t}; }); })
+  .then(function(r){
+    if(r.s!==200){
+      var m='HTTP '+r.s;
+      try{ var j=JSON.parse(r.t); if(j.error&&j.error.message) m=j.error.message; }catch(e){}
+      onErr(m); return;
+    }
+    var d; try{ d=JSON.parse(r.t); }catch(e){ onErr('Parse error: '+r.t.substring(0,80)); return; }
+    var txt='';
+    if(d.content&&Array.isArray(d.content)) d.content.forEach(function(b){ if(b.type==='text') txt+=b.text; });
+    if(txt) onOK(txt); else onErr('API vratilo prazdnou odpoved');
+  })
+  .catch(function(e){ onErr('Chyba: '+(e.message||String(e))); });
+}
+
+function generate(){
+  if(!API_KEY){ toast('Nejdriv uloz API klic!'); return; }
+  document.getElementById('prog').innerHTML='';
+  document.getElementById('slbl').textContent='';
+  var main=document.getElementById('main'); main.innerHTML='';
+
+  var chips='';
+  ST.chars.forEach(function(v){ chips+='<span class="sc">'+CE[v]+' '+getName(v)+'</span>'; });
+  chips+='<span class="sc">'+(TL[ST.topic]||ST.topic)+'</span>';
+  chips+='<span class="sc">'+(THL[ST.theme]||ST.theme)+'</span>';
+  chips+='<span class="sc">'+ST.age+' let</span>';
+
+  var sc=mk('div','story-card');
+  sc.innerHTML='<div class="story-top"><span style="font-size:24px">&#128214;</span><h2 id="sth">Pisu pohadku...</h2></div>'
+    +'<div class="sum">'+chips+'</div>'
+    +'<div class="ldwrap" id="ldwrap"><div class="ldbook">&#128218;</div>'
+    +'<div class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>'
+    +'<div class="ldtxt">Vymyslim pribeh...</div></div>'
+    +'<div class="story-body" id="sbody" style="display:none"></div>';
+  main.appendChild(sc);
+
+  callAPI(function(txt){
+    document.getElementById('ldwrap').style.display='none';
+    document.getElementById('sth').textContent='Pohadka je tady!';
+    var sb=document.getElementById('sbody'); sb.style.display='block';
+    txt.split(/\n\n+/).forEach(function(p){ if(p.trim()){ var el=mk('p'); el.textContent=p.trim(); sb.appendChild(el); } });
+    var btns=mk('div','sbtns');
+    var b1=mk('button','bact'); b1.textContent='Jina pohadka'; b1.onclick=generate;
+    var b2=mk('button','bact'); b2.textContent='Kopirovat'; b2.onclick=function(){
+      if(navigator.clipboard) navigator.clipboard.writeText(sb.innerText).then(function(){ toast('Zkopirovano!'); });
+      else toast('Kopirovani neni dostupne');
+    };
+    var b3=mk('button','bnew'); b3.textContent='Nova pohadka'; b3.onclick=reset;
+    btns.appendChild(b1); btns.appendChild(b2); btns.appendChild(b3);
+    sc.appendChild(btns);
+  }, function(errMsg){
+    document.getElementById('ldwrap').style.display='none';
+    document.getElementById('sth').textContent='Chyba';
+    var sb=document.getElementById('sbody'); sb.style.display='block'; sb.style.color='#FF6B9D';
+    sb.textContent=errMsg;
+    var row=mk('div','navrow'); row.style.marginTop='14px';
+    var rb=mk('button','bgen'); rb.textContent='Zkusit znovu'; rb.onclick=reset;
+    row.appendChild(rb); sc.appendChild(row);
+  });
+}
+
+var STEPS=['Vek','Tema','Namet','Postavy','Jmena'];
+function drawProg(){
+  var h='';
+  for(var i=0;i<STEPS.length;i++){
+    var c='ps'+(i<ST.step?' done':i===ST.step?' cur':'');
+    h+='<div class="'+c+'"><div class="f"></div></div>';
+  }
+  document.getElementById('prog').innerHTML=h;
+  var sl=document.getElementById('slbl');
+  sl.innerHTML=ST.step<STEPS.length ? 'Krok <b>'+(ST.step+1)+'</b> z '+STEPS.length+' &mdash; <b>'+STEPS[ST.step]+'</b>' : '';
+}
+function draw(){
+  drawProg();
+  var m=document.getElementById('main'); m.innerHTML='';
+  [s0,s1,s2,s3,s4][ST.step](m);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function nx(){ ST.step++; draw(); }
+function bk(){ if(ST.step>0){ST.step--;draw();} }
+function reset(){ ST.step=0;ST.age=null;ST.topic=null;ST.theme=null;ST.chars=[];ST.names={};draw(); }
+
+function mk(tag,cls){ var e=document.createElement(tag); if(cls)e.className=cls; return e; }
+function mCard(p,t){ var c=mk('div','card'); var h=mk('div','ctit'); h.textContent=t; c.appendChild(h); p.appendChild(c); return c; }
+function mNav(p,back){
+  var n=mk('div','navrow'); p.appendChild(n);
+  if(back){ var b=mk('button','bbk'); b.textContent='Zpet'; b.onclick=bk; n.appendChild(b); }
+  return n;
+}
+function mNext(n,dis){ var b=mk('button','bnt'); b.textContent='Dal'; b.disabled=!!dis; b.onclick=nx; n.appendChild(b); return b; }
+
+function s0(p){
+  var c=mCard(p,'Kolik ti je let?');
+  var row=mk('div','age-row'); c.appendChild(row);
+  var nb;
+  [6,7,8,9].forEach(function(a){
+    var b=mk('div','ab'+(ST.age===a?' on':''));
+    b.innerHTML=a+'<small>let</small>';
+    b.onclick=function(){ ST.age=a; row.querySelectorAll('.ab').forEach(function(x){x.className='ab';}); b.className='ab on'; if(nb)nb.disabled=false; };
+    row.appendChild(b);
+  });
+  nb=mNext(mNav(p,false),!ST.age);
+}
+function s1(p){
+  var c=mCard(p,'Kde se pohadka odehrava?');
+  var cs=mk('div','chips'); c.appendChild(cs);
+  var nb;
+  TOPICS.forEach(function(t){
+    var ch=mk('div','ch '+t.c+(ST.topic===t.v?' on':''));
+    ch.innerHTML=t.e+' '+t.l;
+    ch.onclick=function(){ ST.topic=t.v; cs.querySelectorAll('.ch').forEach(function(x){x.classList.remove('on');}); ch.classList.add('on'); if(nb)nb.disabled=false; };
+    cs.appendChild(ch);
+  });
+  nb=mNext(mNav(p,true),!ST.topic);
+}
+function s2(p){
+  var c=mCard(p,'O cem bude pohadka?');
+  var cs=mk('div','chips'); c.appendChild(cs);
+  var nb;
+  THEMES.forEach(function(t){
+    var ch=mk('div','ch '+t.c+(ST.theme===t.v?' on':''));
+    ch.innerHTML=t.e+' '+t.l;
+    ch.onclick=function(){ ST.theme=t.v; cs.querySelectorAll('.ch').forEach(function(x){x.classList.remove('on');}); ch.classList.add('on'); if(nb)nb.disabled=false; };
+    cs.appendChild(ch);
+  });
+  nb=mNext(mNav(p,true),!ST.theme);
+}
+function s3(p){
+  var c=mCard(p,'Kdo bude v pohadce? (1 az 4)');
+  var g=mk('div','hcs'); c.appendChild(g);
+  var nb;
+  CHARS.forEach(function(ch){
+    var hc=mk('div','hc '+ch.t+(ST.chars.indexOf(ch.v)>=0?' on':''));
+    hc.innerHTML='<span class="em">'+ch.e+'</span>'+ch.l;
+    hc.onclick=function(){
+      var i=ST.chars.indexOf(ch.v);
+      if(i>=0){ST.chars.splice(i,1);hc.classList.remove('on');}
+      else if(ST.chars.length<4){ST.chars.push(ch.v);hc.classList.add('on');}
+      else{toast('Max 4 postavy!');return;}
+      if(nb)nb.disabled=ST.chars.length===0;
+    };
+    g.appendChild(hc);
+  });
+  nb=mNext(mNav(p,true),ST.chars.length===0);
+}
+function s4(p){
+  var c=mCard(p,'Jak se jmenuji postavy? (nepovinne)');
+  var ng=mk('div','ng'); c.appendChild(ng);
+  ST.chars.forEach(function(v){
+    var ni=mk('div','ni');
+    var nem=mk('span','nem'); nem.innerHTML=CE[v]; ni.appendChild(nem);
+    var nid=mk('div','nid');
+    var lbl=mk('label'); lbl.textContent=CL[v]||v; nid.appendChild(lbl);
+    var inp=mk('input'); inp.value=ST.names[v]||''; inp.placeholder=CD[v]||cap(v); inp.maxLength=14;
+    inp.oninput=function(){ST.names[v]=inp.value;};
+    nid.appendChild(inp); ni.appendChild(nid); ng.appendChild(ni);
+  });
+  var n=mNav(p,true);
+  var gb=mk('button','bgen'); gb.textContent='Vygeneruj pohadku!'; gb.onclick=generate;
+  n.appendChild(gb);
+}
+
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2400); }
+
+draw();
+</script>
+</body>
+</html>
